@@ -1,0 +1,697 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+#White wine Data set Explanatory Analysis by S Ramya
+========================================================
+##Description of the data set
+  We are analysing the White wine Data set which consists of 11 input variables based on Physio chemical tests and a single output variable based on sensory data having 4898 observations .
+  
+# Input variables:
+
+* Fixed acidity:Acid involved in wine that donot evaporate readily.
+* Volatile acidity/:amount of acetic acid in wine.
+* citric acid:citric acid which gives freshness and flavour.
+* Residual sugar:the amount of sugar in wine.
+* chlorides:the amount of salt in wine.
+* Free sulfurdioxide:free SO2 which prevents microbial growth and oxidation.
+* total sulfurdioxide:free and bound forms of SO2.
+* Density:the density of water in it.
+* PH:Wine is scaled very acidic (from 0) to very basic (from 14).
+* sulphates:wine additive acts as antimicrobial and antioxidant.
+* alcohol: percent of alcohol content. 
+  
+## Output variables:
+  
+Quality:It is rated between 0 (very bad) and 10(very excellent)
+  
+  
+Analysis of the provided data done to determine:
+
+* whether acidity of wine determine the quality of the wine 
+* whether alcohol or density defines the quality of the wine 
+* sugar,Chloride or sulphur related components defines the quality of wine 
+
+
+ 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using in your analysis in this code
+# chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk. This
+# prevents the code from displaying in the knitted HTML output. You should set
+# echo=FALSE for all code chunks in your file, unless it makes sense for your
+# report to show the code that generated a particular plot.
+
+# The other parameters for "message" and "warning" should also be set to FALSE
+# for other code chunks once you have verified that each plot comes out as you
+# want it to. This will clean up the flow of your report.
+
+library(ggplot2)
+library(GGally)
+library(memisc)
+library(dplyr)
+library(gridExtra)
+library(reshape2)
+
+
+
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+widata <- read.csv('C:\\R\\project2\\wineQualityWhites.csv')
+```
+
+# Univariate Plots Section
+
+Instead of doing analysis of each input variable, i have combined acidity level variable(Fixed acidity,Volatile acidity,citric acid) together in a single plot and Ingredients level(Residual sugar,chlorides,sulphates,sulfurdioxide) together in a single plot ,Density ,pH etc seperately.
+
+##Quality of wine plot:
+
+```{r echo=FALSE, Univariate_Plots}
+ggplot(aes(x = factor(quality)), data = widata) +
+  geom_bar(fill='green') +
+ggtitle("Quality Distribution") +
+   xlab("Quality(1-10)") +
+  ylab("samples count")
+
+
+```
+   
+   From the above plot of Quality distribution of white wine ,we can understand Quality of the wine resembles symmetrical distribution.Majority of the sample seems to be found with moderate quality and few with poor quality and excellent quality.
+   It has mean of 5.8 and median of 6 and 75% of samples are within Quality of 6.
+   
+##Ingredients Analysis:
+
+```{r echo=FALSE, Univariate_Plots1}
+#Plotting ingredients parameters 
+
+ggplot(aes(residual.sugar), data = widata) + 
+  geom_histogram(color="yellowgreen",bins = 40) +
+  scale_x_log10()
+ 
+summary(widata$residual.sugar)
+
+
+```
+
+```{r echo=FALSE, Univariate_Plots2}
+#Plotting ingredients parameters 
+
+summary(widata$residual.sugar)
+
+```
+
+ 
+  While plotting the ingredients of white wine,residual sugar plot shows range distribution varies from 0 to 20 g/dm^3.First 25% samples are found within 2 g/dm^3.It clearly shows high spike in amount of samples between 0 to 2 g/dm^3.It follows binodal distribution.
+  
+ 
+```{r echo=FALSE, Univariate_Plots3}
+#Plotting ingredients parameters 
+ggplot(aes(chlorides), data = widata) + 
+  geom_histogram(color="gold",bins = 40)+ scale_x_log10()
+ summary(widata$chlorides) 
+
+```
+
+
+  Chlorides has mean of 0.04577g/dm^3.It slightly shows normal distribution.It ranges from
+0.009 to 0.346 g / dm^3.
+ 
+```{r echo=FALSE, Univariate_Plots4}
+#Plotting ingredients parameters 
+ggplot(aes(free.sulfur.dioxide), data = widata) + 
+  geom_histogram(color="gold",bins = 40)+ scale_x_log10(breaks = seq(5,400,100))
+summary(widata$free.sulfur.dioxide) 
+
+```
+ 
+  
+  free.sulfur.dioxide follows negative skewed distribution and it ranges from 2 to 
+  289 mg / dm^3 and has a mean of 35.31 mg / dm^3.
+  
+   
+```{r echo=FALSE, Univariate_Plots5}
+#Plotting ingredients parameters 
+ggplot(aes(total.sulfur.dioxide), data = widata) + 
+  geom_histogram(color="gold",bins = 40)+ scale_x_log10(breaks = seq(50,400,100))
+ summary(widata$total.sulfur.dioxide) 
+
+```
+  
+  
+  
+  
+ Total sulfur dioxide  follows slightly normal distribution.It has mean of 138.4 mg / dm^3.It ranges from 9 to 440 mg/dm^3.
+ 
+```{r echo=FALSE, Univariate_Plots6}
+#Plotting ingredients parameters 
+ggplot(aes(sulphates), data = widata) + 
+  geom_histogram(color="gold",bins = 40)+ scale_x_log10(breaks = seq(0.2,1.1,0.1))
+summary(widata$sulphates) 
+
+```
+ 
+ 
+Sulphates follows slightly normal distribution.It has mean of 0.4898 g/dm^3.It ranges from 0.22 to 1.08 g/dm^3.
+ 
+ 
+ 
+ 
+   
+```{r echo=FALSE, Univariate_Plots7}
+#Modified Variable
+widata$free.sulfur.dioxide_modified <- widata$free.sulfur.dioxide/1000
+widata$total.sulfur.dioxide_modified <- widata$total.sulfur.dioxide/1000
+
+```
+
+   I have modified free.sulfur.dioxide and total.sulfur.dioxide from mg/dm^3 to g/m^3 so that all ingredients are measured with uniform units of measurements.
+
+##Alcohol percent analysis:
+
+```{r echo=FALSE, Univariate_Plots8}
+#Plotting ingredients parameters 
+
+ggplot(aes(alcohol), data = widata) + geom_histogram(color="red",bins = 40)
+summary(widata$alcohol)
+
+```
+
+Alcohol % plot shows that samples follow positively skewed distribution.Alcohol in samples varies from 8 to 14.20 with the average mean of 10.51.
+
+
+##Density :
+```{r echo=FALSE, Univariate_Plots9}
+#Plotting density
+
+ggplot(aes(density),data=widata)+geom_histogram(color="purple",bins=40)+ 
+  scale_x_log10(breaks = seq(0.97,1.1,0.01))
+summary(widata$density)
+
+```
+
+Density plot of samples shows normal distribution.Density of samples varies from 0.98 to 1.03.Mean is observed to be at 0.9940.
+
+##Acidity content:
+
+```{r echo=FALSE, Univariate_Plots10}
+#Plotting density
+
+ggplot(aes(pH),data = widata) + geom_histogram(color="purple",bins=40)
+summary(widata$pH)
+
+```
+
+PH follows normal distribution which range varying from 2.7 to 3.8.Average mean is observed to be at 3.188.
+
+###Acidity level analysis:   
+   
+```{r echo=FALSE, Univariate_Plots11}
+#Plotting acidity parameters 
+
+a1 <- ggplot(aes(fixed.acidity), data = widata) + 
+  geom_histogram(color="darkblue",bins = 40) 
+a2 <- ggplot(aes(volatile.acidity), data = widata) +
+  geom_histogram(color="lightblue",bins = 40) 
+a3 <- ggplot(aes(citric.acid), data = widata) + 
+  geom_histogram(color="lightblue",bins = 40)
+grid.arrange(a1,a2,a3,ncol=3)
+
+summary(widata$fixed.acidity)
+summary(widata$volatile.acidity)
+summary(widata$citric.acid)
+
+```
+
+These plots about acidity(fixed & volatile and citric ) almost show similar distribution which almost looks like normal distribution.Fixed acidity in samples ranges mostly from 6 to 9 g/dm^3.
+Volatile acidity of sample ranges from 0.1 to 0.6 g/dm^3 and citric acidity in samples ranged from 0.1 to 0.7 g/dm^3.This shows fixed acidity dominates more than volatile and citric acidity atleast in quantity level.
+The mean of fixed acidity is 6.855 g / dm^3  and volatile acidity is 0.2782 g / dm^3  and citric acid is 0.3342 g / dm^3 
+
+```{r echo=FALSE, Univariate_Plots12}
+#Plotting acidity content distribution
+
+widata$totalacidity <- widata$fixed.acidity + widata$volatile.acidity +
+                            widata$citric.acid
+widata$fixedacidpercent<- (widata$fixed.acidity/widata$totalacidity)*100 
+widata$volatileacidpercent <-(widata$volatile.acidity/widata$totalacidity)*100  
+widata$citricacidpercent <- (widata$citric.acid/widata$totalacidity)*100
+a10 <- ggplot(aes(fixedacidpercent), data = widata) + 
+  geom_histogram(color="darkblue",bins = 40) 
+a11 <- ggplot(aes(volatileacidpercent), data = widata) +
+  geom_histogram(color="lightblue",bins = 40) 
+a12<- ggplot(aes(citricacidpercent), data = widata) +
+  geom_histogram(color="lightblue",bins = 40)
+grid.arrange(a10,a11,a12,ncol=3)
+```
+      
+
+  acidity content distribution shows fixed acidity distribution is of the range of 85 to 95% and voltaile acidity distribution is of the range of 1 to 10 % and citric acid is of range of 0 to 10 %.
+      
+      
+```{r echo=FALSE, Univariate_Plots13}
+#Acidity type Definition
+widata$acidity.type<-ordered(cut(widata$pH, c(0,2,5,8,11,14), 
+                                 labels=c("VERY ACIDIC","ACIDIC", "NEUTRAL",
+                                          "BASIC", 
+                                          "VERY BASIC")))	
+summary(widata$acidity.type)
+```
+    
+  I have used acidity.type variable (factor variable) to define acidic or basic nature of wine in the samples observed.I assumed below levels with range of pH as follows
+    
+    pH(0 to 2) -> VERY ACIDIC
+    pH(2 TO 5)-> ACIDIC
+    PH(5 to 8) ->Neutral
+    pH(8 TO 11)-> BASIC
+    pH(11 TO 14)-> VERY BASIC
+    
+I observed that all the samples 4898 are in ACIDIC in nature.
+
+
+#Univariate Analysis:
+
+  We are analysing the White wine Data set which consists of 11 input variables based on Physio chemical tests and a single output variable based on sensory data having 4898 observations .
+ 
+   Instead of doing analysis of each input variable, i have combined acidity level variable (Fixed acidity,Volatile acidity,citric acid) together in a single plot and Ingredients level  (Residual sugar,chlorides,sulphates,sulfurdioxide) together in a single plot ,Density ,pH etc seperately.
+
+   I have used acidity.type variable (factor variable) to define acidic or basic nature of wine in the samples observed.Of all the categories which i have five categories i have divided the pH values as Very acidic,acidic,neutral,basic and very basic ,i have found all 4898 samples belong to the same category of "acidic".(between 2 to 5).This clearly shows that the sample acidity almost belong to same level.
+
+  Inorder to analyise the acid distribution,i have created new variable fixedacidpercent,volatileacid percent and citricacidpercent to analysis the influence of kind of acid creating more impact.I have observed fixedacidpercent plays dominant role with 90%.  
+
+  I have modified free.sulfur.dioxide and total.sulfur.dioxide from mg/dm^3 to g/m^3 so that all ingredients are measured with uniform units of measurements.
+
+
+# Bivariate Plots Section:
+
+I have found corelation between Quality vs pH,Quality vs Density,Quality vs residual.sugar,Quality vs chlorides ,Quality vs total.sulfur.dioxide,Quality vs free.sulfur.dioxide,Quality vs sulphates ,Quality vs alcohol,Quality vs fixed.acidity,Quality vs Volatile.acidity and Quality vs citric.acid.
+
+```{r echo=FALSE, Bivariate_Plots1}
+ with(subset(widata),cor.test(quality,pH,method='pearson'))
+ with(subset(widata),cor.test(quality,density,method='pearson'))
+ with(subset(widata),cor.test(quality,residual.sugar,method='pearson'))
+ with(subset(widata),cor.test(quality,chlorides,method='pearson'))
+ with(subset(widata),cor.test(quality,total.sulfur.dioxide,method='pearson'))
+ with(subset(widata),cor.test(quality,free.sulfur.dioxide,method='pearson'))
+with(subset(widata),cor.test(quality,sulphates,method='pearson'))
+with(subset(widata),cor.test(quality,alcohol,method='pearson'))
+with(subset(widata),cor.test(quality,fixed.acidity,method='pearson'))
+with(subset(widata),cor.test(quality,volatile.acidity,method='pearson'))
+with(subset(widata),cor.test(quality,citric.acid,method='pearson'))
+with(subset(widata),cor.test(alcohol,residual.sugar,method='pearson'))
+with(subset(widata),cor.test(density,residual.sugar,method='pearson'))
+with(subset(widata),cor.test(alcohol,density,method='pearson'))
+
+
+
+```
+
+
+  Density have moderate negative correlation (-0.3071233 ) with the Quality and alcohol has strongest positive correlation with Quality.(0.4355747 ).
+
+#Bivariable plots section:
+
+##Alcohol vs Quality:
+
+  In the below plot between alcohol % and quality,we have found there is a strong linear corelation between the alcohol content and quality. 
+
+
+```{r echo=FALSE, Bivariate_Plots}
+ 
+ggplot(data = widata, aes(y = alcohol, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Purple") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+
+##Density vs Quality:
+ 
+   In the below plot between Density and quality,we have found there is a moderate negative  corelation between the Density and quality.
+
+
+
+```{r echo=FALSE, Bivariate_Plots2}
+ 
+ggplot(data = widata, aes(y = density, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Purple") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+
+
+##Chlorides vs Quality:
+
+  In the below plot between Chlorides and quality,we have found there is a bit moderate negative  corelation between the Chlorides and quality.
+
+```{r echo=FALSE, Bivariate_Plots3}
+ 
+ggplot(data = widata, aes(y = chlorides, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Purple") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+
+
+   I have plotted both stronger relation variables density and alcOhol and density with each other.
+In order to further analysis with stronger relations variables density and alcohol ,i have used residual sugar variable which is associated more with density .
+
+##Residual sugar vs Alcohol:
+
+There is stronger negative correlation between the alcohol  and sugar(-0.4506312 )
+
+```{r echo=FALSE, Bivariate_Plots4}
+ 
+ggplot(data = widata, aes(y = residual.sugar, x = alcohol)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Red") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+
+##Density vs Alcohol.
+
+
+   In the below plot,we can find that density has much stronger negative correlation with the alcohol.(-0.7801376)
+
+```{r echo=FALSE, Bivariate_Plots5}
+ 
+ggplot(data = widata, aes(y = density, x = alcohol)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Red") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+`
+
+##Residual sugar vs Density:
+
+In the below plot of sugar vs Density,we can very strong correlation between sugar and density.
+(0.8389665) 
+```{r echo=FALSE, Bivariate_Plots6}
+ 
+ggplot(data = widata, aes(y = residual.sugar, x = density)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="Red") +
+   geom_smooth(method = 'lm')
+
+
+
+# 
+
+```
+
+##others vs Quality:
+
+```{r echo=FALSE, Bivariate_Plots7}
+ 
+c1<-ggplot(data = widata, aes(y = total.sulfur.dioxide, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+c2<-ggplot(data = widata, aes(y = free.sulfur.dioxide, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+
+c3<-ggplot(data = widata, aes(y = sulphates, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+c4<-ggplot(data = widata, aes(y = fixed.acidity, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+c5<-ggplot(data = widata, aes(y = volatile.acidity, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+c6<-ggplot(data = widata, aes(y = citric.acid, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="green") +
+   geom_smooth(method = 'lm')
+grid.arrange(c1,c2,c3,c4,c5,c6,ncol=3)
+
+# 
+
+```
+
+In the above plot,there is not much correlation observed between the other variables like total.sulfur.dioxide ,free.sulfur.dioxide,sulphates,fixed.acidity,voltaile.acidity and citric.acid with Quality.
+
+
+#Bivariate Analysis
+
+   I have done correlation test between all the input variables with the output variable quality.I have assumes as having greater than 0.3 or -0.3 as strong corelation.          
+
+ The plot between them shows that of all the 10 variables ,the strongest positive relation with quality is found between the alcohol and Quality (0.4355747) .It  is followed by the second strongest negative relation found between the density and quality(-0.3071233) .It is followed by the third strongest relation is found between the chlorides and quality(-0.2099).
+ 
+  Other variables like pH,fixed.acidity,volatile acidity and total.sulfur.dioxide,sulphates have weaker relation with quality.citric acid and free.sulfur.dioxide have weakest relations of all the rest.
+
+### Did you observe any interesting relationships between the other features \
+
+  Since the density(-0.3071233) and alcohol(0.4355747) had stronger relation with quality.I further plotted these both input variable density and alcohol against one another and have found the stronger negative correlation of (-0.7801376).Inorder to do more deeper analysis i have used residual sugar and found relation between sugar and density and also sugar and alcohol.In suprise ,i have found residual has not only strongest positive correlation with density(0.8389665).But it also has strongest negative corelation with the alcohol.(-0.4506312 )
+  
+
+
+### What was the strongest relationship you found?
+
+The strongest relationship found with the quality of wine is with the alcohol which is followed by density.
+
+# Multivariate Plots Section
+
+
+```{r echo=FALSE, Multivariate_Plots1}
+b1=ggplot(data= subset(widata, widata$quality < 6) , aes(x=density,y=alcohol)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1) 
+  
+b2=ggplot(data= subset(widata, widata$quality > 6| widata$quality == 6) , aes(x=density,y=alcohol)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)+ coord_cartesian(xlim=c(0.986,1.002))
+
+grid.arrange(b1,b2,ncol=2)
+```
+   
+  I have created two plots in which i have separated quality in to two Groups.In the left plot is the one with poor quality samples and in the right plot is the one with good quality samples.
+  In the left plot with the poor quality samples,i have observed two things.Most poor quality samples are distribted when alcohol level is between 9 to 11.Most poor quality samples are distributed are distributed when density is between 0.993 to 1 .
+  In the rightplot with the good quality samples,i have observed two things.Most good quality samples are distributed when alcohol level is between 11 to 14.Most good quality samples are distributed when density is between 0.988 to 0.993.
+  It shows how the density and alcohol play important role in determining the quality of the wine.
+        
+```{r echo=FALSE, Multivariate_Plots}
+b1=ggplot(data= subset(widata, widata$quality < 6) ,
+          aes(x=density,y=residual.sugar))  + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1) 
+  
+b2=ggplot(data= subset(widata, widata$quality > 6 |widata$quality == 6) ,
+          aes(x=density,y=residual.sugar)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)+
+  coord_cartesian(xlim=c(0.986,1.002),ylim=c(0,23))
+
+grid.arrange(b1,b2,ncol=2)
+```        
+
+ 
+ In the above plot of density vs residual sugar divided by poor and good quality samples,more good quality samples are concentrated with lower sugar concentration and density.(rightplot)
+ 
+ 
+           
+```{r echo=FALSE, Multivariate_Plots2}
+b1=ggplot(data= subset(widata, widata$quality < 6) ,
+          aes(x=residual.sugar,y=alcohol)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)
+  
+b2=ggplot(data= subset(widata, widata$quality > 6 |widata$quality == 6) ,
+          aes(x=residual.sugar,y=alcohol)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)+
+  coord_cartesian(xlim=c(0,25))
+grid.arrange(b1,b2,ncol=2)
+```              
+ 
+ 
+ In the above plot of residual sugar vs alcohol,it is observed that good quality wine has lower sugar content where as poor quality wine has higher sugar content.
+ 
+ 
+
+# Multivariate Analysis
+
+Quality samples is divided into good and bad quality samples and they are plotted against the quality. and density & also with respect to density and residual sugar.
+
+It is found good quality samples of wine are observed with high alcohol content and lowerdensity content. Similarly poor quality samples of wine are observed with low alcohol content and higher density.In further analysis done,it is found that more good quality samples of wine are concentrated with lower sugar concentration and lower density.It is also found that Good quality wine has lower sugar content where as poor quality wine has higher sugar content.
+
+##prediction
+
+```{r echo=FALSE, Multivariate_Plots3}
+
+# linear model
+m1 <- lm(quality ~ alcohol,data= widata)
+m2 <- update(m1,~ . + density)
+m3 <- update(m2,~ . + chlorides)
+m4 <- update(m3,~ . + residual.sugar)
+mtable(m1,m2,m3,m4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```              
+
+##Challenges of the model:
+R Square value is less.Correlation is found between alcohol and quality but it is found not too strong .Similarly density also has very less correlation with the quality.Since most of the input variables doesnot show much correlation with the output variable quality.It is weaker to predict with this model.
+
+
+
+
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+
+```{r echo=FALSE, Plot_one}
+ggplot(aes(x = factor(quality)), data = widata) +
+  geom_bar(fill='green',bins=30) +
+ggtitle("Quality Distribution") +
+   xlab("Quality(1-10)") +
+  ylab("samples count")
+  
+  
+```
+
+
+
+
+### Description One
+
+   Plot one shows the distribution of the samples of white wine with respect to the quality .
+In this distribution we can find that largest number of samples are found with quality 6.No sample is found with Quality 0,1,2 or 10.This shows both very high quality white wine samples and very low quality samples are missing.Mean of this distribution is found to be 5.878 and median is found to be 6.
+
+
+
+
+### Plot Two
+
+```{r echo=FALSE, Plot_two}
+c1<-ggplot(data = widata, aes(y = alcohol, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="red") +
+   geom_smooth(method = 'lm') +
+ggtitle("alcohol vs Quality")+ xlab("Quality(1-10)") +
+  ylab("Alcohol % ")
+c2<-ggplot(data = widata, aes(y = density, x = quality)) +
+   geom_point(alpha = 1/4, position = position_jitter(h = 0), size = 2,
+              color="blue") +
+   geom_smooth(method = 'lm')  +
+ggtitle("Density vs Quality") + xlab("Quality(1-10)") +
+  ylab("Density in g/cm^3")
+
+grid.arrange(c1,c2,ncol=2)
+```
+
+
+### Description Two
+
+All the input variables density,alcohol,fixed.acidity,volatile.acidity,citricacid,chlorides,sulphates,pH,residual sugar,free.sulfur.dioxide,total.sulfur.dioxide are plotted against quality and correlation is found.Visualizations made in the project depict that Alcohol is found to be having strongest relation with the quality.It is followed by density.Rest of variables have very weak relationith the quality variable.Plots of the alcohol are shown with strong positive correlation  with quality and density are shown with moderate negative correlation with quality.
+
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+b1=ggplot(data= subset(widata, widata$quality < 6) , aes(x=density,y=alcohol)) + 
+  geom_point(aes(color=factor(quality)))+ scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)+
+  coord_cartesian(xlim=c(0.986,1.002),ylim=c(8,14))+
+ggtitle("alcoholvsdensity(poor quality)")+theme_dark()+ 
+  xlab("Density in g/cm^3") +
+  ylab("Alcohol % ")
+                                                            
+
+  
+b2=ggplot(data= subset(widata, widata$quality > 6 |widata$quality == 6 ) ,
+          aes(x=density,y=alcohol)) + 
+  geom_point(aes(color=factor(quality))) + scale_color_brewer(type = "div",
+                                                             palette = 8, 
+                                                             direction = 1)+
+  coord_cartesian(xlim=c(0.986,1.002),ylim=c(8,14))+
+ggtitle("alcoholvsdensity(good quality)")+theme_dark()+ 
+   xlab("Density in g/cm^3") +
+  ylab("Alcohol % ")
+  
+
+grid.arrange(b1,b2,ncol=2)
+
+
+```
+
+### Description Three
+
+   I have separated quality in to two Groups.In the left plot is the one with poor quality samples and in the right plot is the one with good quality samples. In the left plot with the poor quality samples,i have observed two things.Most poor quality samples are distribted when alcohol level is between 9 to 11.Most poor quality samples are distributed are distributed when density is between 0.993 to 1 .
+     
+   In the rightplot with the good quality samples,i have observed two things.Most good quality samples are distributed when alcohol level is between 11 to 14.Most good quality samples are distributed when density is between 0.988 to 0.993.
+
+   Comparing both the good and poor quality samples ,we can conclude that good quality samples of wine are observed with high alcohol content and lowerdensity content.Similarly poor quality samples of wine are observed with low alcohol content and higher density.
+
+   Finally It shows how the density and alcohol play important role in determining the quality of the wine.
+   
+# Summary:
+ 
+ * When the alcohol content increases ,Quality of white wine increases.
+ * when the density decreases,Quality of white wine increases.
+ * when the residual sugar content decreases,density decreases as Quality of wine increases.
+ * Other variables like pH,fixed.acidity,volatile acidity ,total.sulfur.dioxide,sulphates and    citricacid,free.sulfur.dioxide  have weaker relation with quality.
+ * largest number of samples are found with quality 6.
+ * All the samples of white wine falls under the same category acidic(2 to 5)
+
+
+   
+# Reflection
+
+ I learned more about ggplot using R with the white wine data .It is that plotting the multiple variable using R is what i found more interesting .It is easy to find which variables are more corelated or not using R.Here in the data ,i didnt find much stronger correlated variables so it is very difficult to predict the model as all the variables are only loosely corelated with output variable.we require much more samples with very low quality (1 ,2) and very high quality(9,10) so that we can come to better conclusion on the dependance of input variable on final output.
